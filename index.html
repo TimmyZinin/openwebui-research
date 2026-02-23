@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open WebUI + OVH Cloud: AI Video Factory</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0a0f;
+  --bg-card: #0f1019;
+  --bg-card-hover: #141420;
+  --blue-900: #1e3a5f;
+  --blue-700: #1e40af;
+  --blue-500: #3b82f6;
+  --blue-400: #60a5fa;
+  --blue-300: #93c5fd;
+  --cyan-500: #06b6d4;
+  --cyan-400: #22d3ee;
+  --purple-500: #8b5cf6;
+  --purple-400: #a78bfa;
+  --green-500: #10b981;
+  --green-400: #34d399;
+  --red-500: #ef4444;
+  --amber-400: #fbbf24;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: rgba(59,130,246,0.15);
+  --glow-blue: 0 0 30px rgba(59,130,246,0.15);
+  --glow-cyan: 0 0 30px rgba(6,182,212,0.15);
+  --glow-purple: 0 0 30px rgba(139,92,246,0.15);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ===== GRID BACKGROUND ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== NAVIGATION ===== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav .logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--blue-400);
+  letter-spacing: -0.5px;
+}
+
+nav .logo span { color: var(--cyan-400); }
+
+nav .nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+nav .nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+nav .nav-links a:hover { color: var(--blue-400); }
+
+/* ===== SECTIONS ===== */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+section:first-of-type { padding-top: 120px; }
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--blue-400);
+  margin-bottom: 16px;
+}
+
+.section-label::before {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue-500), var(--cyan-500));
+  border-radius: 2px;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+
+h1 .gradient {
+  background: linear-gradient(135deg, var(--blue-400), var(--cyan-400), var(--purple-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+p.subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 700px;
+  line-height: 1.8;
+}
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  animation: pulse1 12s ease-in-out infinite;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -300px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%);
+  animation: pulse2 15s ease-in-out infinite;
+}
+
+@keyframes pulse1 {
+  0%, 100% { transform: translate(0,0) scale(1); opacity: 0.8; }
+  50% { transform: translate(-30px,20px) scale(1.1); opacity: 1; }
+}
+
+@keyframes pulse2 {
+  0%, 100% { transform: translate(0,0) scale(1); opacity: 0.6; }
+  50% { transform: translate(20px,-15px) scale(1.05); opacity: 1; }
+}
+
+.hero-content { position: relative; z-index: 2; }
+
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-stat .value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-stat .label {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(59,130,246,0.3);
+  box-shadow: var(--glow-blue);
+  transform: translateY(-2px);
+}
+
+.card.cyan:hover {
+  border-color: rgba(6,182,212,0.3);
+  box-shadow: var(--glow-cyan);
+}
+
+.card.purple:hover {
+  border-color: rgba(139,92,246,0.3);
+  box-shadow: var(--glow-purple);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.card-icon.blue { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); }
+.card-icon.cyan { background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2); }
+.card-icon.purple { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); }
+.card-icon.green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
+.card-icon.amber { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+
+/* ===== TABLES ===== */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead {
+  background: rgba(59,130,246,0.08);
+}
+
+th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--blue-400);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(59,130,246,0.06);
+  color: var(--text-secondary);
+}
+
+tr:hover td { background: rgba(59,130,246,0.03); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.green { background: rgba(16,185,129,0.15); color: var(--green-400); }
+.badge.blue { background: rgba(59,130,246,0.15); color: var(--blue-400); }
+.badge.amber { background: rgba(251,191,36,0.15); color: var(--amber-400); }
+.badge.red { background: rgba(239,68,68,0.15); color: var(--red-500); }
+.badge.purple { background: rgba(139,92,246,0.15); color: var(--purple-400); }
+
+.highlight { color: var(--blue-400); font-weight: 600; }
+.highlight-cyan { color: var(--cyan-400); font-weight: 600; }
+.highlight-green { color: var(--green-400); font-weight: 600; }
+.highlight-amber { color: var(--amber-400); font-weight: 600; }
+
+/* ===== DIAGRAM ===== */
+.diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  margin: 32px 0;
+  overflow-x: auto;
+}
+
+.diagram-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.diagram-node {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  text-align: center;
+  min-width: 120px;
+  transition: all 0.3s;
+}
+
+.diagram-node:hover {
+  border-color: var(--blue-400);
+  box-shadow: var(--glow-blue);
+}
+
+.diagram-node.active {
+  background: rgba(59,130,246,0.15);
+  border-color: var(--blue-400);
+}
+
+.diagram-node .node-icon { font-size: 24px; margin-bottom: 8px; }
+.diagram-node .node-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.diagram-node .node-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.diagram-arrow {
+  color: var(--blue-500);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+/* ===== ARCHITECTURE BOX ===== */
+.arch-container {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr 80px 1fr;
+  gap: 0;
+  align-items: start;
+  margin: 32px 0;
+}
+
+@media (max-width: 900px) {
+  .arch-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .arch-arrow-col { display: none; }
+}
+
+.arch-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+}
+
+.arch-box.gpu { border-color: rgba(59,130,246,0.3); }
+.arch-box.cloud { border-color: rgba(139,92,246,0.3); }
+.arch-box.ruvds { border-color: rgba(6,182,212,0.3); }
+
+.arch-box-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.arch-box.gpu .arch-box-title { color: var(--blue-400); }
+.arch-box.cloud .arch-box-title { color: var(--purple-400); }
+.arch-box.ruvds .arch-box-title { color: var(--cyan-400); }
+
+.arch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.arch-item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.arch-box.gpu .dot { background: var(--blue-400); }
+.arch-box.cloud .dot { background: var(--purple-400); }
+.arch-box.ruvds .dot { background: var(--cyan-400); }
+
+.arch-arrow-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--text-muted);
+  padding-top: 60px;
+}
+
+/* ===== PIPELINE STEPS ===== */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 32px 0;
+}
+
+.pipeline-step {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.pipeline-step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+.pipeline-step:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+
+.pipeline-step:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(59,130,246,0.3);
+}
+
+.pipeline-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue-400);
+}
+
+.pipeline-info .pipeline-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.pipeline-info .pipeline-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pipeline-tool {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--cyan-400);
+  background: rgba(6,182,212,0.08);
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(6,182,212,0.15);
+  white-space: nowrap;
+}
+
+/* ===== COST BREAKDOWN ===== */
+.cost-total {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius);
+}
+
+.cost-total .amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 48px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cost-total .period {
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+/* ===== ROADMAP ===== */
+.roadmap {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 32px 0;
+}
+
+.roadmap-phase {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 600px) {
+  .roadmap-phase { grid-template-columns: 1fr; }
+}
+
+.phase-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.phase-tag.p1 { background: rgba(59,130,246,0.15); color: var(--blue-400); }
+.phase-tag.p2 { background: rgba(6,182,212,0.15); color: var(--cyan-400); }
+.phase-tag.p3 { background: rgba(139,92,246,0.15); color: var(--purple-400); }
+.phase-tag.p4 { background: rgba(16,185,129,0.15); color: var(--green-400); }
+.phase-tag.p5 { background: rgba(251,191,36,0.15); color: var(--amber-400); }
+
+.phase-content { padding: 4px 0; }
+.phase-content .phase-title { font-weight: 600; font-size: 16px; margin-bottom: 8px; }
+.phase-content .phase-tasks { list-style: none; }
+.phase-content .phase-tasks li {
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.phase-content .phase-tasks li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ===== DO / DON'T ===== */
+.dos-donts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+@media (max-width: 700px) {
+  .dos-donts { grid-template-columns: 1fr; }
+}
+
+.do-list, .dont-list {
+  padding: 24px;
+  border-radius: var(--radius);
+}
+
+.do-list {
+  background: rgba(16,185,129,0.05);
+  border: 1px solid rgba(16,185,129,0.15);
+}
+
+.dont-list {
+  background: rgba(239,68,68,0.05);
+  border: 1px solid rgba(239,68,68,0.15);
+}
+
+.do-list h4, .dont-list h4 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.do-list h4 { color: var(--green-400); }
+.dont-list h4 { color: var(--red-500); }
+
+.do-list li, .dont-list li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  list-style: none;
+}
+
+/* ===== ANIMATIONS ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== FOOTER ===== */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 60px 24px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+footer a { color: var(--blue-400); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  section { padding: 60px 16px; }
+  .hero-stats { gap: 24px; }
+  nav .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Open<span>WebUI</span> + GPU Cloud</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#gpu">GPU</a></li>
+    <li><a href="#llm">LLM</a></li>
+    <li><a href="#heygen">HeyGen</a></li>
+    <li><a href="#transfer">Transfer</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#cost">Cost</a></li>
+    <li><a href="#practices">Practices</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+</nav>
+
+<!-- 1. HERO -->
+<section class="hero" id="hero">
+  <div class="hero-content fade-in">
+    <div class="section-label">Deep Research Report</div>
+    <h1>Open WebUI + GPU Cloud:<br><span class="gradient">AI Video Factory</span></h1>
+    <p class="subtitle">Автоматическая генерация видео-шортсов через HeyGen и self-hosted модели. Полный пайплайн от скрипта до публикации в 14 соцсетей через Юки.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="value">525</div>
+        <div class="label">Videos / Month</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value">$344</div>
+        <div class="label">Total Cost / Month</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value">5</div>
+        <div class="label">AI Bloggers</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value">14</div>
+        <div class="label">Social Networks</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. PROBLEM -->
+<section id="problem">
+  <div class="fade-in">
+    <div class="section-label">01 / Problem</div>
+    <h2>Manual vs Automated</h2>
+    <p class="subtitle" style="margin-bottom:32px">Текущий процесс ручной, медленный, и не масштабируется. Нужна полная автоматизация.</p>
+  </div>
+
+  <div class="grid-2 fade-in">
+    <div class="card" style="border-color: rgba(239,68,68,0.2);">
+      <div class="card-icon" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);">&#x274C;</div>
+      <h3>Сейчас (Manual)</h3>
+      <ul style="list-style:none;color:var(--text-secondary);font-size:14px;">
+        <li style="padding:6px 0">&#x2022; RUVDS: 4 vCPU, 3.8 GB RAM, нет GPU</li>
+        <li style="padding:6px 0">&#x2022; edge-tts (робот 4/10) + статика</li>
+        <li style="padding:6px 0">&#x2022; Vast.ai бюджет исчерпан ($0.63)</li>
+        <li style="padding:6px 0">&#x2022; Ручной запуск каждого видео</li>
+        <li style="padding:6px 0">&#x2022; Нет оркестрации, нет QA</li>
+        <li style="padding:6px 0">&#x2022; ~2-3 видео/день максимум</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color: rgba(16,185,129,0.2);">
+      <div class="card-icon green">&#x2705;</div>
+      <h3>Цель (Automated)</h3>
+      <ul style="list-style:none;color:var(--text-secondary);font-size:14px;">
+        <li style="padding:6px 0">&#x2022; GPU VPS: RTX 4090, 24 GB VRAM</li>
+        <li style="padding:6px 0">&#x2022; HeyGen (9.5/10) + EchoMimicV3 (7.5/10)</li>
+        <li style="padding:6px 0">&#x2022; Open WebUI + Qwen3 для скриптов</li>
+        <li style="padding:6px 0">&#x2022; Полная автоматизация pipeline</li>
+        <li style="padding:6px 0">&#x2022; QA + retry + health checks</li>
+        <li style="padding:6px 0">&#x2022; 525 видео/мес (17/день)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3. ARCHITECTURE -->
+<section id="architecture">
+  <div class="fade-in">
+    <div class="section-label">02 / Architecture</div>
+    <h2>System Architecture</h2>
+    <p class="subtitle" style="margin-bottom:32px">Три сервера, чёткое разделение ответственности. GPU для тяжёлых задач, RUVDS для оркестрации.</p>
+  </div>
+
+  <div class="arch-container fade-in">
+    <div class="arch-box gpu">
+      <div class="arch-box-title">GPU VPS (Vast.ai RTX 4090)</div>
+      <div class="arch-item"><span class="dot"></span>Open WebUI (фронтенд)</div>
+      <div class="arch-item"><span class="dot"></span>Ollama + Qwen3 14B</div>
+      <div class="arch-item"><span class="dot"></span>LiteLLM Proxy</div>
+      <div class="arch-item"><span class="dot"></span>EchoMimicV3 (lip sync)</div>
+      <div class="arch-item"><span class="dot"></span>Fish Audio / Qwen3-TTS</div>
+      <div class="arch-item"><span class="dot"></span>ffmpeg (montage)</div>
+      <div class="arch-item"><span class="dot"></span>rclone (transfer)</div>
+    </div>
+
+    <div class="arch-arrow-col">&rarr;</div>
+
+    <div class="arch-box cloud">
+      <div class="arch-box-title">Cloud APIs</div>
+      <div class="arch-item"><span class="dot"></span>HeyGen API Pro ($99)</div>
+      <div class="arch-item"><span class="dot"></span>Groq (free LLM fallback)</div>
+      <div class="arch-item"><span class="dot"></span>DeepSeek API (cheap)</div>
+      <div class="arch-item"><span class="dot"></span>Gemini (b-roll, free)</div>
+      <div class="arch-item"><span class="dot"></span>ElevenLabs (TTS backup)</div>
+    </div>
+
+    <div class="arch-arrow-col">&rarr;</div>
+
+    <div class="arch-box ruvds">
+      <div class="arch-box-title">RUVDS (88.218.248.114)</div>
+      <div class="arch-item"><span class="dot"></span>Webhook Listener</div>
+      <div class="arch-item"><span class="dot"></span>Yuki SMM Agent</div>
+      <div class="arch-item"><span class="dot"></span>PostScheduler (180s)</div>
+      <div class="arch-item"><span class="dot"></span>TG Notify</div>
+      <div class="arch-item"><span class="dot"></span>14 social networks</div>
+      <div class="arch-item"><span class="dot"></span>Umami analytics</div>
+    </div>
+  </div>
+
+  <div class="fade-in" style="margin-top:32px">
+    <h3>Open WebUI - Key Features</h3>
+    <div class="grid-4" style="margin-top:16px">
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F50C;</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Multi-Model</div>
+        <div style="font-size:12px;color:var(--text-muted)">Ollama + OpenAI + Anthropic + 100+ via LiteLLM</div>
+      </div>
+      <div class="card cyan">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F9E9;</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Tools & Pipelines</div>
+        <div style="font-size:12px;color:var(--text-muted)">LLM calls HeyGen API, video gen, any REST endpoint</div>
+      </div>
+      <div class="card purple">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F4DA;</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">RAG</div>
+        <div style="font-size:12px;color:var(--text-muted)">9 vector DBs, hybrid search, knowledge base for bloggers</div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F310;</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">OpenAI-Compatible API</div>
+        <div style="font-size:12px;color:var(--text-muted)">125K+ stars, v0.6.52, Apache 2.0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. GPU COMPARISON -->
+<section id="gpu">
+  <div class="fade-in">
+    <div class="section-label">03 / GPU Cloud</div>
+    <h2>VPS Selection</h2>
+    <p class="subtitle" style="margin-bottom:8px">OVH Cloud <span class="highlight-amber">too expensive</span> ($730+/mo). Marketplace providers are 3-7x cheaper.</p>
+  </div>
+
+  <div class="table-wrap fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>GPU</th>
+          <th>VRAM</th>
+          <th>$/hour</th>
+          <th>$/month</th>
+          <th>SLA</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">Vast.ai</td>
+          <td>RTX 3090</td>
+          <td>24 GB</td>
+          <td>$0.13</td>
+          <td class="highlight-green">$95</td>
+          <td><span class="badge amber">No</span></td>
+          <td>Budget pick</td>
+        </tr>
+        <tr>
+          <td class="highlight">Vast.ai</td>
+          <td>RTX 6000 Ada</td>
+          <td>48 GB</td>
+          <td>$0.21</td>
+          <td class="highlight-green">$155</td>
+          <td><span class="badge amber">No</span></td>
+          <td>Best 48GB deal</td>
+        </tr>
+        <tr style="background:rgba(59,130,246,0.05)">
+          <td class="highlight">Vast.ai</td>
+          <td><strong>RTX 4090</strong></td>
+          <td><strong>24 GB</strong></td>
+          <td>$0.32</td>
+          <td class="highlight-cyan"><strong>$234</strong></td>
+          <td><span class="badge amber">No</span></td>
+          <td><span class="badge green">Recommended</span></td>
+        </tr>
+        <tr>
+          <td class="highlight">RunPod</td>
+          <td>RTX 4090</td>
+          <td>24 GB</td>
+          <td>$0.34</td>
+          <td>$248</td>
+          <td><span class="badge blue">Basic</span></td>
+          <td>Most reliable</td>
+        </tr>
+        <tr>
+          <td>Hetzner</td>
+          <td>RTX 4000 Ada</td>
+          <td>20 GB</td>
+          <td>&mdash;</td>
+          <td>$196</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge red">Only 20GB</span></td>
+        </tr>
+        <tr>
+          <td>OVH Cloud</td>
+          <td>NVIDIA L4</td>
+          <td>24 GB</td>
+          <td>$1.00</td>
+          <td class="highlight-amber">$730</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge red">Too expensive</span></td>
+        </tr>
+        <tr>
+          <td>Lambda</td>
+          <td>A6000</td>
+          <td>48 GB</td>
+          <td>$0.92</td>
+          <td class="highlight-amber">$672</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge red">Over budget</span></td>
+        </tr>
+        <tr>
+          <td>DigitalOcean</td>
+          <td>RTX 4000 Ada</td>
+          <td>20 GB</td>
+          <td>$0.76</td>
+          <td class="highlight-amber">$565</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge red">Over budget</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 5. LLM SELECTION -->
+<section id="llm">
+  <div class="fade-in">
+    <div class="section-label">04 / LLM Selection</div>
+    <h2>Choosing the Right Model</h2>
+    <p class="subtitle" style="margin-bottom:8px">Russian language quality is critical. Qwen3 dominates open-source for Russian creative writing.</p>
+  </div>
+
+  <div class="table-wrap fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Size</th>
+          <th>VRAM (Q4)</th>
+          <th>Russian</th>
+          <th>Creative</th>
+          <th>Tool Use</th>
+          <th>tok/s (4090)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(59,130,246,0.05)">
+          <td class="highlight"><strong>Qwen3 14B</strong></td>
+          <td>14B</td>
+          <td>~11 GB</td>
+          <td><span class="badge green">Excellent</span></td>
+          <td><span class="badge green">Excellent</span></td>
+          <td><span class="badge green">Strong</span></td>
+          <td>~70</td>
+        </tr>
+        <tr>
+          <td class="highlight">Qwen3 32B</td>
+          <td>32B</td>
+          <td>~23 GB</td>
+          <td><span class="badge green">Excellent</span></td>
+          <td><span class="badge green">Excellent</span></td>
+          <td><span class="badge green">Strong</span></td>
+          <td>~35</td>
+        </tr>
+        <tr>
+          <td>Llama 3.3 70B</td>
+          <td>70B</td>
+          <td>~42 GB</td>
+          <td><span class="badge amber">Decent</span></td>
+          <td><span class="badge blue">Good</span></td>
+          <td><span class="badge blue">Good</span></td>
+          <td>~52</td>
+        </tr>
+        <tr>
+          <td>Mistral Nemo</td>
+          <td>12B</td>
+          <td>~9 GB</td>
+          <td><span class="badge amber">Average</span></td>
+          <td><span class="badge amber">Average</span></td>
+          <td><span class="badge amber">OK</span></td>
+          <td>~80</td>
+        </tr>
+        <tr>
+          <td>DeepSeek V3</td>
+          <td>671B</td>
+          <td>N/A</td>
+          <td><span class="badge green">Excellent</span></td>
+          <td><span class="badge green">Excellent</span></td>
+          <td><span class="badge green">Strong</span></td>
+          <td><span class="badge purple">API only</span></td>
+        </tr>
+        <tr>
+          <td>Gemma 3 27B</td>
+          <td>27B</td>
+          <td>~22 GB</td>
+          <td><span class="badge amber">Moderate</span></td>
+          <td><span class="badge blue">Good</span></td>
+          <td><span class="badge amber">OK</span></td>
+          <td>~40</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-muted)">Phi-4 14B</td>
+          <td>14B</td>
+          <td>~11 GB</td>
+          <td><span class="badge red">Poor</span></td>
+          <td><span class="badge amber">Average</span></td>
+          <td><span class="badge red">Weak</span></td>
+          <td>~70</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card fade-in" style="margin-top:24px;border-color:rgba(59,130,246,0.3)">
+    <h3 style="color:var(--blue-400)">LLM Routing Strategy</h3>
+    <div class="diagram-flow" style="margin-top:16px">
+      <div class="diagram-node active">
+        <div class="node-label">Open WebUI</div>
+        <div class="node-sub">User Interface</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node">
+        <div class="node-label">LiteLLM</div>
+        <div class="node-sub">Proxy Router</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node" style="border-color:rgba(16,185,129,0.3)">
+        <div class="node-label">Ollama</div>
+        <div class="node-sub">Qwen3 14B (free)</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node" style="border-color:rgba(139,92,246,0.3)">
+        <div class="node-label">Groq</div>
+        <div class="node-sub">Llama 70B (free)</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node" style="border-color:rgba(251,191,36,0.3)">
+        <div class="node-label">DeepSeek</div>
+        <div class="node-sub">$0.27/M tokens</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:16px;text-align:center">Основные задачи &rarr; локально (бесплатно) | Сложные &rarr; Groq (бесплатно) | Fallback &rarr; DeepSeek (дёшево)</p>
+  </div>
+</section>
+
+<!-- 6. HEYGEN -->
+<section id="heygen">
+  <div class="fade-in">
+    <div class="section-label">05 / HeyGen Integration</div>
+    <h2>Video Generation</h2>
+    <p class="subtitle" style="margin-bottom:32px">Гибридный подход: HeyGen для премиум-контента + EchoMimicV3 для массового производства.</p>
+  </div>
+
+  <div class="grid-2 fade-in">
+    <div class="card" style="border-color:rgba(251,191,36,0.2)">
+      <div class="card-icon amber">&#x1F31F;</div>
+      <h3>HeyGen API Pro</h3>
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px">
+        Качество <span class="highlight-green">9.5/10</span> &mdash; лучшее на рынке
+      </div>
+      <ul style="list-style:none;font-size:13px;color:var(--text-secondary)">
+        <li style="padding:4px 0">&#x2022; Avatar IV: губы + глаза + голова + жесты</li>
+        <li style="padding:4px 0">&#x2022; API Pro: $99/мес = ~250 видео (60с)</li>
+        <li style="padding:4px 0">&#x2022; Custom Photo Avatar (загрузить фото)</li>
+        <li style="padding:4px 0">&#x2022; Webhook на завершение</li>
+        <li style="padding:4px 0">&#x2022; REST API: POST /v2/video/generate</li>
+      </ul>
+      <div style="margin-top:16px;font-family:'JetBrains Mono';font-size:12px;color:var(--amber-400)">$99/мес &mdash; 250 premium videos</div>
+    </div>
+
+    <div class="card cyan" style="border-color:rgba(6,182,212,0.2)">
+      <div class="card-icon cyan">&#x1F916;</div>
+      <h3>EchoMimicV3 (Self-hosted)</h3>
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px">
+        Качество <span class="highlight-cyan">7.5/10</span> &mdash; open-source, бесплатно
+      </div>
+      <ul style="list-style:none;font-size:13px;color:var(--text-secondary)">
+        <li style="padding:4px 0">&#x2022; Полутело: губы + глаза + голова + торс</li>
+        <li style="padding:4px 0">&#x2022; 12 GB VRAM (RTX 4090)</li>
+        <li style="padding:4px 0">&#x2022; ~15-25 мин на 60с видео</li>
+        <li style="padding:4px 0">&#x2022; Apache 2.0, Ant Group (AAAI 2026)</li>
+        <li style="padding:4px 0">&#x2022; Неограниченно видео (GPU time only)</li>
+      </ul>
+      <div style="margin-top:16px;font-family:'JetBrains Mono';font-size:12px;color:var(--cyan-400)">$0/мес &mdash; unlimited videos (GPU included)</div>
+    </div>
+  </div>
+
+  <div class="table-wrap fade-in" style="margin-top:32px">
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Quality</th>
+          <th>Price/mo</th>
+          <th>Videos/mo</th>
+          <th>API</th>
+          <th>Custom Face</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(59,130,246,0.05)">
+          <td class="highlight">HeyGen API Pro</td>
+          <td>9.5/10</td>
+          <td>$99</td>
+          <td>~250</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge green">Yes</span></td>
+        </tr>
+        <tr>
+          <td>Hedra Pro</td>
+          <td>8.5/10</td>
+          <td>$75</td>
+          <td>~40</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge green">Yes</span></td>
+        </tr>
+        <tr>
+          <td>D-ID Pro</td>
+          <td>7.5/10</td>
+          <td>$100</td>
+          <td>~30</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge green">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="highlight-cyan">EchoMimicV3</td>
+          <td>7.5/10</td>
+          <td>$0</td>
+          <td>Unlimited</td>
+          <td><span class="badge purple">Self</span></td>
+          <td><span class="badge green">Yes</span></td>
+        </tr>
+        <tr>
+          <td>fal.ai MuseTalk</td>
+          <td>7/10</td>
+          <td>$0</td>
+          <td>Unlimited</td>
+          <td><span class="badge green">Yes</span></td>
+          <td><span class="badge green">Yes</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7. DATA TRANSFER -->
+<section id="transfer">
+  <div class="fade-in">
+    <div class="section-label">06 / Data Transfer</div>
+    <h2>Video Delivery Mechanism</h2>
+    <p class="subtitle" style="margin-bottom:32px">Как безопасно передать видео от GPU VPS к Юки на RUVDS? rclone + webhook.</p>
+  </div>
+
+  <div class="table-wrap fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Reliability</th>
+          <th>Speed</th>
+          <th>Cost</th>
+          <th>Simplicity</th>
+          <th>Push Notify</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(59,130,246,0.05)">
+          <td class="highlight"><strong>rclone + SFTP</strong></td>
+          <td>7/10</td>
+          <td>9/10</td>
+          <td class="highlight-green">Free</td>
+          <td>8/10</td>
+          <td>+ webhook</td>
+          <td><span class="badge green">Recommended</span></td>
+        </tr>
+        <tr>
+          <td>Cloudflare R2</td>
+          <td>9/10</td>
+          <td>8/10</td>
+          <td class="highlight-green">Free tier</td>
+          <td>7/10</td>
+          <td>Via Workers</td>
+          <td><span class="badge blue">Scale option</span></td>
+        </tr>
+        <tr>
+          <td>MinIO (self-hosted)</td>
+          <td>7/10</td>
+          <td>9/10</td>
+          <td>Free</td>
+          <td>6/10</td>
+          <td>Bucket events</td>
+          <td>Good alternative</td>
+        </tr>
+        <tr>
+          <td>OVH Object Storage</td>
+          <td>8/10</td>
+          <td>9/10</td>
+          <td>~$1/mo</td>
+          <td>7/10</td>
+          <td>No</td>
+          <td>If staying OVH</td>
+        </tr>
+        <tr>
+          <td>Direct SCP</td>
+          <td>5/10</td>
+          <td>9/10</td>
+          <td>Free</td>
+          <td>9/10</td>
+          <td>No</td>
+          <td><span class="badge red">fail2ban risk</span></td>
+        </tr>
+        <tr>
+          <td>Telegram Bot</td>
+          <td>4/10</td>
+          <td>4/10</td>
+          <td>Free</td>
+          <td>8/10</td>
+          <td>Built-in</td>
+          <td><span class="badge amber">Notify only</span></td>
+        </tr>
+        <tr>
+          <td>Google Drive</td>
+          <td>6/10</td>
+          <td>5/10</td>
+          <td>Free</td>
+          <td>3/10</td>
+          <td>Unreliable</td>
+          <td><span class="badge red">Too complex</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card fade-in" style="margin-top:24px;border-color:rgba(6,182,212,0.2)">
+    <h3 style="color:var(--cyan-400)">Transfer Flow</h3>
+    <div class="diagram-flow" style="margin-top:16px">
+      <div class="diagram-node active">
+        <div class="node-icon">&#x1F3AC;</div>
+        <div class="node-label">Video Ready</div>
+        <div class="node-sub">GPU VPS</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node">
+        <div class="node-icon">&#x1F4E6;</div>
+        <div class="node-label">rclone SFTP</div>
+        <div class="node-sub">checksum + retry</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node">
+        <div class="node-icon">&#x1F4E1;</div>
+        <div class="node-label">Webhook POST</div>
+        <div class="node-sub">metadata + md5</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node">
+        <div class="node-icon">&#x2705;</div>
+        <div class="node-label">Yuki Queue</div>
+        <div class="node-sub">PostScheduler</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-node" style="border-color:rgba(16,185,129,0.3)">
+        <div class="node-icon">&#x1F4F1;</div>
+        <div class="node-label">14 Networks</div>
+        <div class="node-sub">TG, VK, YT...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. VIDEO PIPELINE -->
+<section id="pipeline">
+  <div class="fade-in">
+    <div class="section-label">07 / Video Pipeline</div>
+    <h2>Step by Step</h2>
+    <p class="subtitle" style="margin-bottom:32px">10 шагов от темы до публикации. Полностью автоматизировано.</p>
+  </div>
+
+  <div class="pipeline fade-in">
+    <div class="pipeline-step">
+      <div class="pipeline-num">01</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Topic Selection</div>
+        <div class="pipeline-desc">Выбор темы из контент-плана или RAG базы знаний</div>
+      </div>
+      <div class="pipeline-tool">Open WebUI</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">02</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Script Generation</div>
+        <div class="pipeline-desc">Qwen3 14B генерирует сценарий с tone of voice блогера</div>
+      </div>
+      <div class="pipeline-tool">Ollama + Qwen3</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">03</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Text-to-Speech</div>
+        <div class="pipeline-desc">Озвучка скрипта с voice clone блогера</div>
+      </div>
+      <div class="pipeline-tool">Fish Audio S1</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">04</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Avatar Video</div>
+        <div class="pipeline-desc">Аудио + аватар = говорящая голова с lip sync</div>
+      </div>
+      <div class="pipeline-tool">HeyGen / EchoMimicV3</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">05</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">B-Roll Generation</div>
+        <div class="pipeline-desc">AI-картинки для вставок между hero-кадрами</div>
+      </div>
+      <div class="pipeline-tool">Gemini Flash (free)</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">06</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Montage</div>
+        <div class="pipeline-desc">Субтитры + b-roll + transitions + Ken Burns</div>
+      </div>
+      <div class="pipeline-tool">ffmpeg</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">07</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Quality Assurance</div>
+        <div class="pipeline-desc">Проверка: длительность, разрешение, размер, аудио</div>
+      </div>
+      <div class="pipeline-tool">Python QA</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">08</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Transfer</div>
+        <div class="pipeline-desc">rclone SFTP + webhook уведомление RUVDS</div>
+      </div>
+      <div class="pipeline-tool">rclone + webhook</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">09</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Queue & Schedule</div>
+        <div class="pipeline-desc">Юки PostScheduler забирает из очереди</div>
+      </div>
+      <div class="pipeline-tool">Yuki Agent</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">10</div>
+      <div class="pipeline-info">
+        <div class="pipeline-title">Publish</div>
+        <div class="pipeline-desc">14 соцсетей: TG, VK, YouTube, LinkedIn, Instagram...</div>
+      </div>
+      <div class="pipeline-tool">Transport Layer</div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. COST -->
+<section id="cost">
+  <div class="fade-in">
+    <div class="section-label">08 / Cost Breakdown</div>
+    <h2>Monthly Budget</h2>
+  </div>
+
+  <div class="cost-total fade-in">
+    <div class="amount">$344</div>
+    <div class="period">/month &mdash; recommended plan (Variant A)</div>
+  </div>
+
+  <div class="grid-3 fade-in">
+    <div class="card" style="border-color:rgba(59,130,246,0.3)">
+      <h3>Variant A: Optimal</h3>
+      <div style="font-family:'JetBrains Mono';font-size:28px;color:var(--blue-400);margin:12px 0">$344<span style="font-size:14px;color:var(--text-muted)">/mo</span></div>
+      <ul style="list-style:none;font-size:13px;color:var(--text-secondary)">
+        <li style="padding:4px 0">GPU: Vast.ai RTX 4090 &mdash; $234</li>
+        <li style="padding:4px 0">HeyGen API Pro &mdash; $99</li>
+        <li style="padding:4px 0">Fish Audio S1 &mdash; $11</li>
+        <li style="padding:4px 0">Transfer: rclone &mdash; $0</li>
+        <li style="padding:4px 0">LLM fallback: Groq &mdash; $0</li>
+      </ul>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">~500 videos: 250 HeyGen + 250 EchoMimicV3</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(16,185,129,0.3)">
+      <h3>Variant B: Budget</h3>
+      <div style="font-family:'JetBrains Mono';font-size:28px;color:var(--green-400);margin:12px 0">$155<span style="font-size:14px;color:var(--text-muted)">/mo</span></div>
+      <ul style="list-style:none;font-size:13px;color:var(--text-secondary)">
+        <li style="padding:4px 0">GPU: Vast.ai RTX 6000 Ada &mdash; $155</li>
+        <li style="padding:4px 0">Video: EchoMimicV3 only &mdash; $0</li>
+        <li style="padding:4px 0">TTS: Qwen3-TTS &mdash; $0</li>
+        <li style="padding:4px 0">LLM: Groq free tier &mdash; $0</li>
+        <li style="padding:4px 0">B-roll: Gemini free &mdash; $0</li>
+      </ul>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">Quality 7.5/10, all self-hosted</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(251,191,36,0.3)">
+      <h3>Variant C: Premium</h3>
+      <div style="font-family:'JetBrains Mono';font-size:28px;color:var(--amber-400);margin:12px 0">$779<span style="font-size:14px;color:var(--text-muted)">/mo</span></div>
+      <ul style="list-style:none;font-size:13px;color:var(--text-secondary)">
+        <li style="padding:4px 0">GPU: RunPod RTX 4090 &mdash; $248</li>
+        <li style="padding:4px 0">HeyGen Business &mdash; $449</li>
+        <li style="padding:4px 0">TTS: ElevenLabs Pro &mdash; $82</li>
+        <li style="padding:4px 0">Transfer &mdash; $0</li>
+      </ul>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">Quality 9.5/10, 1500 HeyGen videos</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. BEST PRACTICES -->
+<section id="practices">
+  <div class="fade-in">
+    <div class="section-label">09 / Best Practices</div>
+    <h2>Do's and Don'ts</h2>
+  </div>
+
+  <div class="dos-donts fade-in">
+    <div class="do-list">
+      <h4>&#x2705; Best Practices</h4>
+      <ul>
+        <li>Separate LLM and GPU rendering (different containers)</li>
+        <li>Use async queue (webhook, don't block)</li>
+        <li>Retry with exponential backoff for all APIs</li>
+        <li>Cache intermediate results (TTS, b-roll)</li>
+        <li>Version content (script v1 &rarr; audio v1 &rarr; video v1)</li>
+        <li>Health checks: GPU usage, disk, queue depth</li>
+        <li>Graceful degradation (HeyGen down &rarr; EchoMimicV3)</li>
+      </ul>
+    </div>
+    <div class="dont-list">
+      <h4>&#x274C; Anti-Patterns</h4>
+      <ul>
+        <li>Don't store videos on GPU VPS long-term (expensive)</li>
+        <li>Don't use sync calls for video generation (minutes!)</li>
+        <li>Don't depend on single provider (HeyGen can go down)</li>
+        <li>Don't pass credentials over unencrypted channels</li>
+        <li>Don't run Ollama + EchoMimicV3 simultaneously on 24GB</li>
+        <li>Don't use Telegram for file transfer (compression)</li>
+        <li>Don't store videos in Git (large binaries)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 11. ROADMAP -->
+<section id="roadmap">
+  <div class="fade-in">
+    <div class="section-label">10 / Roadmap</div>
+    <h2>Implementation Phases</h2>
+    <p class="subtitle" style="margin-bottom:32px">Total: ~7-10 дней от начала до первого опубликованного видео.</p>
+  </div>
+
+  <div class="roadmap fade-in">
+    <div class="roadmap-phase">
+      <div class="phase-tag p1">Phase 1<br>1-2 days</div>
+      <div class="phase-content">
+        <div class="phase-title">Infrastructure Setup</div>
+        <ul class="phase-tasks">
+          <li>Rent GPU VPS on Vast.ai (RTX 4090)</li>
+          <li>Install Docker + NVIDIA Container Toolkit</li>
+          <li>Deploy Open WebUI + Ollama</li>
+          <li>Install Qwen3 14B via Ollama</li>
+          <li>Configure LiteLLM (Ollama + Groq + DeepSeek)</li>
+          <li>Verify Open WebUI via browser</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="phase-tag p2">Phase 2<br>2-3 days</div>
+      <div class="phase-content">
+        <div class="phase-title">Video Pipeline</div>
+        <ul class="phase-tasks">
+          <li>Configure HeyGen API (key, avatars, voices)</li>
+          <li>Install EchoMimicV3 on GPU VPS</li>
+          <li>Set up Fish Audio S1 (or Qwen3-TTS)</li>
+          <li>Write video_pipeline.py orchestrator</li>
+          <li>Integrate ffmpeg for post-processing</li>
+          <li>Test: 5 HeyGen + 5 EchoMimicV3 videos</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="phase-tag p3">Phase 3<br>1 day</div>
+      <div class="phase-content">
+        <div class="phase-title">Transfer & Integration</div>
+        <ul class="phase-tasks">
+          <li>Configure rclone on GPU VPS (SFTP &rarr; RUVDS)</li>
+          <li>Deploy webhook listener on RUVDS</li>
+          <li>Integrate with Yuki PostScheduler</li>
+          <li>Set up Telegram notifications</li>
+          <li>E2E test: script &rarr; video &rarr; transfer &rarr; publish</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="phase-tag p4">Phase 4<br>1-2 days</div>
+      <div class="phase-content">
+        <div class="phase-title">Open WebUI Extensions</div>
+        <ul class="phase-tasks">
+          <li>Write HeyGen API Tool for Open WebUI</li>
+          <li>Write video generation Pipeline</li>
+          <li>Set up RAG with blogger knowledge base</li>
+          <li>Configure analytics dashboard</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="phase-tag p5">Phase 5<br>Ongoing</div>
+      <div class="phase-content">
+        <div class="phase-title">Scale & Optimize</div>
+        <ul class="phase-tasks">
+          <li>Add second GPU for parallel generation</li>
+          <li>Migrate to Cloudflare R2 for storage</li>
+          <li>A/B test scripts and formats</li>
+          <li>Auto-select HeyGen vs EchoMimicV3 by priority</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. NEXT STEPS -->
+<section id="next" style="text-align:center;padding-bottom:60px">
+  <div class="fade-in">
+    <div class="section-label" style="justify-content:center">11 / Next Steps</div>
+    <h2>Ready to Build</h2>
+    <p class="subtitle" style="margin:0 auto 32px;text-align:center">
+      All research complete. Recommended path: <span class="highlight">Variant A ($344/mo)</span>.<br>
+      Start with Phase 1: rent GPU, deploy Open WebUI.
+    </p>
+
+    <div class="grid-3" style="max-width:900px;margin:0 auto">
+      <div class="card" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">&#x1F680;</div>
+        <h3>Day 1-2</h3>
+        <div style="font-size:13px;color:var(--text-secondary)">GPU + Open WebUI + Ollama</div>
+      </div>
+      <div class="card cyan" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">&#x1F3AC;</div>
+        <h3>Day 3-5</h3>
+        <div style="font-size:13px;color:var(--text-secondary)">HeyGen + EchoMimicV3 + Pipeline</div>
+      </div>
+      <div class="card purple" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">&#x1F4F1;</div>
+        <h3>Day 6-7</h3>
+        <div style="font-size:13px;color:var(--text-secondary)">Transfer + Yuki + First Video</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Deep Research Report &mdash; February 23, 2026 &mdash; <a href="https://github.com/TimmyZinin">TimmyZinin</a></p>
+  <p style="margin-top:8px;font-size:11px">Built with Claude Code | Open WebUI v0.6 | Vast.ai | HeyGen API</p>
+</footer>
+
+<script>
+// Scroll fade-in animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
