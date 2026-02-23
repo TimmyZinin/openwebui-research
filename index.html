@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Video Factory v2 — Claude Code + HeyGen</title>
+<title>AI Video Factory v2 — OpenClaw + HeyGen</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -571,12 +571,12 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
 <!-- HERO -->
 <section class="hero">
   <div class="badge">v2 — февраль 2026</div>
-  <h1>AI Video Factory<br><span>Claude Code + HeyGen</span></h1>
-  <p class="subtitle">Контент-завод на обычном VPS: Claude автоматизирует HeyGen через браузер, монтирует видео с перебивками, публикует на 14 платформ</p>
+  <h1>AI Video Factory<br><span>OpenClaw + HeyGen</span></h1>
+  <p class="subtitle">Контент-завод на обычном VPS: OpenClaw (221K stars) автоматизирует HeyGen через браузер, монтирует видео с перебивками, публикует на 14 платформ. LLM: DeepSeek/GLM (дёшево или бесплатно)</p>
 
   <div class="stats-row">
     <div class="stat">
-      <div class="stat-value">$50</div>
+      <div class="stat-value">$34</div>
       <div class="stat-label">минимальный бюджет/мес</div>
     </div>
     <div class="stat">
@@ -588,7 +588,7 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
       <div class="stat-label">GPU нужно</div>
     </div>
     <div class="stat">
-      <div class="stat-value">4-10x</div>
+      <div class="stat-value">8-16x</div>
       <div class="stat-label">дешевле чем v1</div>
     </div>
   </div>
@@ -597,7 +597,7 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
 <!-- 1. CONCEPT -->
 <section>
   <h2><span class="num">01.</span> Новая концепция</h2>
-  <p class="section-desc">Вместо GPU + HeyGen API — обычный VPS + Claude Code (headless) + HeyGen веб-интерфейс ($29/мес). Автоматизация через Playwright.</p>
+  <p class="section-desc">OpenClaw — автономный AI-агент (221K stars, MIT) на обычном VPS. Управление через Telegram. LLM: DeepSeek/GLM вместо дорогого Claude.</p>
 
   <div class="compare">
     <div class="compare-card old">
@@ -611,13 +611,13 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
       </ul>
     </div>
     <div class="compare-card new">
-      <h3>Стало (v2)</h3>
-      <div class="price">$50-80/мес</div>
+      <h3>Стало (v2.1 — OpenClaw)</h3>
+      <div class="price">$34-42/мес</div>
       <ul class="cost-items" style="margin-top:12px">
-        <li>Обычный VPS (2-4 ядра) — $5-10</li>
+        <li>VPS (Hetzner CX22, 2 ядра) — $5</li>
         <li>HeyGen Creator (web) — $29</li>
-        <li>Claude API (Haiku) — $15-40</li>
-        <li>Всё остальное — бесплатно</li>
+        <li>LLM: DeepSeek V3 — $2-5/мес</li>
+        <li>OpenClaw + b-roll + музыка — $0</li>
       </ul>
     </div>
   </div>
@@ -687,47 +687,51 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
 
 <!-- 4. CLAUDE ON VPS -->
 <section>
-  <h2><span class="num">04.</span> Claude Code на VPS</h2>
-  <p class="section-desc">Headless агент, получает задачи через Telegram, автоматизирует HeyGen через Playwright.</p>
+  <h2><span class="num">04.</span> OpenClaw + LLM</h2>
+  <p class="section-desc">Автономный AI-агент (221K stars). 14+ LLM провайдеров. Telegram-first. Browser automation встроено.</p>
 
   <div class="cards">
     <div class="card">
-      <div class="card-icon accent">⚡</div>
-      <h3>Claude Code CLI</h3>
-      <p>Headless через <code>-p</code> флаг. Node.js 18+. Auth через ANTHROPIC_API_KEY. JSON output.</p>
+      <div class="card-icon accent">🦀</div>
+      <h3>OpenClaw</h3>
+      <p>Standalone агент (НЕ обёртка). Gateway + Runtime + Tools. 15+ каналов (Telegram, WhatsApp, Slack). Persistent memory. MIT лицензия.</p>
     </div>
     <div class="card">
-      <div class="card-icon olive">🤖</div>
-      <h3>OpenClaw</h3>
-      <p>Ready-made обёртка: Telegram → Claude Code → результат. Open-source, 24/7 на VPS. Минимум 2 CPU, 4GB RAM.</p>
+      <div class="card-icon olive">🧠</div>
+      <h3>14+ LLM провайдеров</h3>
+      <p>DeepSeek, GLM (Z.AI), Qwen, Groq, Gemini, Moonshot, OpenRouter, Ollama, Claude, OpenAI, xAI — любой через env переменную.</p>
     </div>
     <div class="card">
       <div class="card-icon sand">🌐</div>
-      <h3>Playwright MCP</h3>
-      <p>Microsoft's @playwright/mcp. Accessibility tree вместо скриншотов. Headless + stealth для anti-bot.</p>
+      <h3>Browser + Shell + Cron</h3>
+      <p>Встроенный Playwright. Shell для ffmpeg/MoviePy. Cron для расписания. Memory файлы. IDENTITY.md для персоны.</p>
     </div>
   </div>
 
   <div class="code-block">
-    <span class="comment"># Установка Claude Code на VPS</span><br>
-    <span class="keyword">curl</span> -fsSL https://claude.ai/install.sh | bash<br>
-    <span class="keyword">export</span> ANTHROPIC_API_KEY=<span class="string">sk-ant-...</span><br><br>
-    <span class="comment"># Выполнение задачи headless</span><br>
-    <span class="keyword">claude</span> -p <span class="string">"Создай видео по сценарию: {script}"</span> \<br>
-    &nbsp;&nbsp;--allowedTools <span class="string">"Bash,Read,Edit"</span> --output-format json<br><br>
-    <span class="comment"># Или OpenClaw (через Telegram)</span><br>
-    <span class="keyword">curl</span> -fsSL https://install.openclaw.ai | bash
+    <span class="comment"># Установка OpenClaw на VPS (Node.js 22+)</span><br>
+    <span class="keyword">npm</span> install -g openclaw@latest<br>
+    <span class="keyword">openclaw</span> onboard --install-daemon<br><br>
+    <span class="comment"># Конфигурация: Telegram + DeepSeek</span><br>
+    <span class="keyword">export</span> TELEGRAM_BOT_TOKEN=<span class="string">"..."</span><br>
+    <span class="keyword">export</span> DEEPSEEK_API_KEY=<span class="string">"..."</span>&nbsp;&nbsp;&nbsp;<span class="comment"># $0.14/1M tok</span><br>
+    <span class="comment"># или бесплатно:</span><br>
+    <span class="keyword">export</span> ZAI_API_KEY=<span class="string">"..."</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># GLM-4.7-Flash = $0</span><br><br>
+    <span class="comment"># Запуск</span><br>
+    <span class="keyword">openclaw</span> gateway
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Модель</th><th>Input/1M tok</th><th>Output/1M tok</th><th>Среднее/день</th><th>Когда</th></tr>
+        <tr><th>LLM</th><th>Input/1M tok</th><th>Output/1M tok</th><th>Tool Calling</th><th>Русский</th><th>500 видео/мес</th></tr>
       </thead>
       <tbody>
-        <tr class="highlight-row"><td>Haiku 4.5</td><td>$1</td><td>$5</td><td>$1-3</td><td>Для скриптов и управления</td></tr>
-        <tr><td>Sonnet 4.6</td><td>$3</td><td>$15</td><td>$6-12</td><td>Для сложных задач</td></tr>
-        <tr><td>Max Ultimate</td><td colspan="3">$200/мес фикс</td><td>Если API >$200/мес</td></tr>
+        <tr class="highlight-row"><td>GLM-4.7-Flash</td><td>$0.00</td><td>$0.00</td><td>87.4 (SOTA)</td><td>Приемлемый</td><td>$0/мес</td></tr>
+        <tr class="highlight-row"><td>DeepSeek V3</td><td>$0.14</td><td>$0.28</td><td>81.5%</td><td>Хороший</td><td>~$2/мес</td></tr>
+        <tr><td>Qwen3-Max</td><td>$1.20</td><td>$6.00</td><td>96.5%</td><td>Лучший</td><td>~$7/мес</td></tr>
+        <tr><td>Groq (Llama 3.3)</td><td>$0.00</td><td>$0.00</td><td>Базовый</td><td>Слабый</td><td>$0/мес</td></tr>
+        <tr><td>Kimi K2.5</td><td>$0.50</td><td>$2.40</td><td>Хороший</td><td>?</td><td>~$3/мес</td></tr>
       </tbody>
     </table>
   </div>
@@ -766,7 +770,7 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
     <table>
       <thead><tr><th>Этап</th><th>Время</th></tr></thead>
       <tbody>
-        <tr><td>Генерация скрипта (Claude Haiku)</td><td>10-30 сек</td></tr>
+        <tr><td>Генерация скрипта (DeepSeek/Qwen)</td><td>10-30 сек</td></tr>
         <tr><td>HeyGen рендер (Avatar III)</td><td>5-15 мин</td></tr>
         <tr><td>B-roll поиск (Pexels/Gemini)</td><td>1-2 мин</td></tr>
         <tr><td>Монтаж (MoviePy + FFmpeg)</td><td>3-8 мин</td></tr>
@@ -811,21 +815,21 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
       <div class="step-num a">1</div>
       <div class="step-content">
         <h4>Тим → Telegram</h4>
-        <p>«Сделай видео: тема X» — задача через OpenClaw или tg-communicator</p>
+        <p>«Сделай видео: тема X» — через Telegram бот OpenClaw</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num a">2</div>
       <div class="step-content">
-        <h4>Claude генерирует сценарий</h4>
-        <p>Haiku 4.5 → скрипт с таймкодами и описаниями b-roll</p>
+        <h4>OpenClaw генерирует сценарий</h4>
+        <p>DeepSeek V3 / Qwen3 → скрипт с таймкодами и описаниями b-roll</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num a">3</div>
       <div class="step-content">
         <h4>Playwright → HeyGen Web</h4>
-        <p>Аватар Лизы + скрипт → Avatar III → рендер 5-15 мин → скачивание MP4</p>
+        <p>OpenClaw Browser Tool → аватар Лизы + скрипт → Avatar III → рендер → MP4</p>
       </div>
     </div>
     <div class="step">
@@ -873,7 +877,7 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
     <div class="step">
       <div class="step-num a">10</div>
       <div class="step-content">
-        <h4>Claude → Telegram</h4>
+        <h4>OpenClaw → Telegram</h4>
         <p>«Видео готово» + ссылки на публикации</p>
       </div>
     </div>
@@ -883,38 +887,38 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
 <!-- 8. COST -->
 <section>
   <h2><span class="num">08.</span> Стоимость</h2>
-  <p class="section-desc">3 варианта. Минимальный — $50/мес, оптимальный — $80/мес.</p>
+  <p class="section-desc">3 варианта. Минимальный — $34/мес (GLM бесплатно), оптимальный — $40/мес (DeepSeek).</p>
 
   <div class="cost-grid">
     <div class="cost-card">
       <h3>Минимальный</h3>
-      <div class="cost-price">$50<small>/мес</small></div>
+      <div class="cost-price">$34<small>/мес</small></div>
       <ul class="cost-items">
         <li>HeyGen Creator — $29</li>
         <li>VPS Hetzner CX22 — $5</li>
-        <li>Claude Haiku API — $15</li>
-        <li>B-roll + музыка — $0</li>
+        <li>LLM: GLM-4.7-Flash — $0</li>
+        <li>OpenClaw + b-roll — $0</li>
       </ul>
     </div>
     <div class="cost-card recommended">
       <div class="rec-badge">Рекомендуется</div>
       <h3>Оптимальный</h3>
-      <div class="cost-price">$80<small>/мес</small></div>
+      <div class="cost-price">$40<small>/мес</small></div>
       <ul class="cost-items">
         <li>HeyGen Creator — $29</li>
-        <li>VPS 4 ядра/8GB — $10</li>
-        <li>Claude Sonnet API — $40</li>
-        <li>ElevenLabs (опц.) — $0-5</li>
+        <li>VPS Hetzner CX22 — $5</li>
+        <li>DeepSeek V3 (500 видео) — $2-5</li>
+        <li>+ Qwen3 (hero контент) — $1-2</li>
       </ul>
     </div>
     <div class="cost-card">
-      <h3>Максимальный</h3>
-      <div class="cost-price">$310<small>/мес</small></div>
+      <h3>С Ollama (локально)</h3>
+      <div class="cost-price">$44<small>/мес</small></div>
       <ul class="cost-items">
-        <li>HeyGen Pro — $99</li>
-        <li>VPS — $10</li>
-        <li>Claude Max Ultimate — $200</li>
-        <li>Avatar IV + 4K</li>
+        <li>HeyGen Creator — $29</li>
+        <li>VPS 8GB RAM (Ollama) — $15</li>
+        <li>LLM: Qwen3:14B локально — $0</li>
+        <li>Всё остальное — $0</li>
       </ul>
     </div>
   </div>
@@ -997,14 +1001,14 @@ section:nth-child(3) .animate { animation-delay: 0.15s; }
       <p>HeyGen Creator $29. Photo Avatar Лизы. 3 тестовых видео вручную. Оценка качества Avatar III.</p>
     </div>
     <div class="phase">
-      <div class="phase-num">Фаза 2 · 3-5 дней</div>
-      <h4>Автоматизация</h4>
-      <p>VPS Hetzner. Claude Code + Playwright. Скрипт автоматизации HeyGen. MoviePy пайплайн.</p>
+      <div class="phase-num">Фаза 2 · 2-3 дня</div>
+      <h4>OpenClaw</h4>
+      <p>VPS Hetzner. OpenClaw + Telegram bot. DeepSeek V3 / GLM-4.7-Flash API. Тест: Telegram → ответ.</p>
     </div>
     <div class="phase">
-      <div class="phase-num">Фаза 3 · 2-3 дня</div>
-      <h4>Интеграция</h4>
-      <p>OpenClaw / Telegram-обёртка. rclone → RUVDS. Yuki Agent. Feedback loop Тим → Claude.</p>
+      <div class="phase-num">Фаза 3 · 3-5 дней</div>
+      <h4>Автоматизация</h4>
+      <p>Playwright → HeyGen. MoviePy пайплайн. rclone → RUVDS. Yuki Agent. Feedback loop.</p>
     </div>
     <div class="phase">
       <div class="phase-num">Фаза 4 · 1 неделя</div>

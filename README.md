@@ -1,6 +1,6 @@
-# AI Video Factory v2 — Claude Code + HeyGen
+# AI Video Factory v2 — OpenClaw + HeyGen
 
-Content factory on a regular VPS: Claude Code automates HeyGen via browser, edits videos with b-roll, publishes to 14 platforms.
+Content factory on a regular VPS: OpenClaw (221K stars, autonomous AI agent) automates HeyGen via browser, edits videos with b-roll, publishes to 14 platforms. Uses cheap Chinese LLMs (DeepSeek $0.14/1M or GLM-4.7 free).
 
 ## Live Presentation
 
@@ -8,32 +8,31 @@ Content factory on a regular VPS: Claude Code automates HeyGen via browser, edit
 
 ## Key Findings
 
-- **HeyGen Creator $29/mo**: "Unlimited" Avatar III videos via web interface. No GPU needed
-- **Photo Avatar**: No identity verification for AI-generated characters (Lisa)
-- **Claude Code on VPS**: Headless via `-p` flag + Playwright MCP for browser automation
-- **OpenClaw**: Ready-made Telegram → Claude Code wrapper for 24/7 operation
-- **Video editing**: MoviePy v2 + FFmpeg on CPU. 60s video renders in 3-8 min
+- **OpenClaw**: Standalone AI agent (NOT a Claude wrapper). 14+ LLM providers, Telegram-first, browser tools, persistent memory
+- **LLM**: DeepSeek V3 ($0.14/1M input) or GLM-4.7-Flash (FREE) — work as drop-in providers
+- **HeyGen Creator $29/mo**: "Unlimited" Avatar III videos. Photo Avatar: no ID verification for AI characters
+- **Video editing**: MoviePy v2 + FFmpeg on CPU. 60s video in 3-8 min
 - **B-roll**: Pexels API (free, 150K+ videos) + Gemini Flash (500 images/day free)
-- **Total budget**: $50-80/mo (was $344-564/mo in v1)
+- **Total budget**: $34-42/mo (was $344-564/mo in v1). Savings: 8-16x
 
 ## Architecture
 
 ```
-Tim (Telegram) → OpenClaw / Claude Code (VPS)
-                     ├── Playwright → HeyGen Web (Avatar III, $29/mo)
-                     ├── MoviePy + FFmpeg (video editing, no GPU)
+Tim (Telegram) → OpenClaw (VPS, $5/mo)
+                     ├── LLM: DeepSeek V3 / GLM-4.7 / Qwen3
+                     ├── Browser Tool → HeyGen Web (Avatar III, $29/mo)
+                     ├── Shell Tool: MoviePy + FFmpeg (no GPU)
                      ├── Pexels API + Gemini (b-roll, free)
                      └── rclone SFTP → RUVDS (Yuki Agent) → 14 social networks
 ```
 
-## Pipeline (per video)
+## LLM Comparison
 
-1. Tim sends topic via Telegram
-2. Claude generates script (Haiku 4.5)
-3. Playwright automates HeyGen: avatar + script → MP4
-4. B-roll: Pexels stock + Gemini AI images
-5. MoviePy: 2s talking head → 2s b-roll → transitions → music
-6. rclone → RUVDS → Yuki Agent → 14 platforms
+| Model | Input $/1M | Tool Calling | Russian | 500 videos/mo |
+|-------|-----------|-------------|---------|---------------|
+| GLM-4.7-Flash | $0 | 87.4 SOTA | OK | $0/mo |
+| DeepSeek V3 | $0.14 | 81.5% | Good | ~$2/mo |
+| Qwen3-Max | $1.20 | 96.5% | Best | ~$7/mo |
 
 ## Files
 
