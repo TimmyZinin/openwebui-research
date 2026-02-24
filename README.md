@@ -34,7 +34,16 @@ Tim (Telegram) → OpenClaw (VPS, $5/mo)
 | DeepSeek V3 | $0.14 | 81.5% | Good | ~$2/mo |
 | Qwen3-Max | $1.20 | 96.5% | Best | ~$7/mo |
 
+## VPS
+
+Contabo Cloud VPS 10: 4 vCPU / 8 GB RAM / 75 GB NVMe / Ubuntu 24.04 / EU
+
 ## Files
 
+- `setup_vps.sh` — VPS bootstrap script (Node.js 20, OpenClaw, Python, FFmpeg)
+- `openclaw_config.yaml` — OpenClaw agent configuration
+- `scripts/video_pipeline.py` — main video production pipeline
+- `scripts/heygen_api.py` — HeyGen API client (Photo Avatar + video generation)
+- `scripts/upload_to_ruvds.sh` — upload finished videos to RUVDS for publishing
+- `lisa_photos/` — AI-generated Lisa Solovyova photos (Nano Banana)
 - `index.html` — interactive presentation (warm theme)
-- Full research: `memory/openwebui_ovh_research.md`

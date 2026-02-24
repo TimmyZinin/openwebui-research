@@ -1,0 +1,43 @@
+# OpenClaw Configuration — AI Video Factory
+# Deploy to: /opt/ai-video/config/openclaw_config.yaml
+
+name: ai-video-factory
+description: Autonomous video content production for 5 AI bloggers
+
+# LLM Provider (choose one)
+llm:
+  # Option 1: GLM-4.7-Flash (FREE, 87.4% tool calling)
+  provider: zhipu
+  model: glm-4.7-flash
+  # api_key from env: GLM_API_KEY
+
+  # Option 2: DeepSeek V3 (~$2/mo for 500 videos)
+  # provider: deepseek
+  # model: deepseek-chat
+  # api_key from env: DEEPSEEK_API_KEY
+
+  # Option 3: Groq Llama 3.3 70B (free tier, 100K tokens/day)
+  # provider: groq
+  # model: llama-3.3-70b-versatile
+  # api_key from env: GROQ_API_KEY
+
+# Tools enabled
+tools:
+  - browser    # For HeyGen web automation
+  - shell      # For FFmpeg/MoviePy video editing
+  - filesystem # For reading/writing video files
+
+# Telegram integration
+telegram:
+  enabled: true
+  # bot_token from env: TELEGRAM_BOT_TOKEN
+
+# Memory
+memory:
+  enabled: true
+  path: /opt/ai-video/memory
+
+# Browser settings (for HeyGen)
+browser:
+  headless: true
+  timeout: 120000  # 2 min for video generation

@@ -1,0 +1,24 @@
+# Secrets
+.env
+config/.env
+*.b64
+
+# Output
+output/
+*.mp4
+*.mp3
+*.wav
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
