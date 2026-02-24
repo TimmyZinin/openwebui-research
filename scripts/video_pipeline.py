@@ -37,19 +37,19 @@ def generate_script(topic: str, blogger_name: str = "Lisa") -> dict:
     """Generate video script via LLM (DeepSeek/GLM/Groq)."""
     import requests
 
-    # Try providers in order: GLM (free) → DeepSeek → Groq
+    # Try providers in order: GLM via OpenRouter (free) → Qwen → Groq
     providers = [
         {
-            "name": "GLM",
-            "url": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-            "key": os.getenv("GLM_API_KEY"),
-            "model": "glm-4.7-flash",
+            "name": "GLM-4.5 (OpenRouter)",
+            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "key": os.getenv("OPENROUTER_API_KEY"),
+            "model": "z-ai/glm-4.5-air:free",
         },
         {
-            "name": "DeepSeek",
-            "url": "https://api.deepseek.com/chat/completions",
-            "key": os.getenv("DEEPSEEK_API_KEY"),
-            "model": "deepseek-chat",
+            "name": "Qwen3 (OpenRouter)",
+            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "key": os.getenv("OPENROUTER_API_KEY"),
+            "model": "qwen/qwen3-next-80b-a3b-instruct:free",
         },
         {
             "name": "Groq",
@@ -81,27 +81,42 @@ Rules:
         if not provider["key"]:
             continue
         try:
+            payload = {
+                "model": provider["model"],
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Topic: {topic}"},
+                ],
+                "temperature": 0.7,
+                "max_tokens": 1500,
+            }
             resp = requests.post(
                 provider["url"],
                 headers={
                     "Authorization": f"Bearer {provider['key']}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "model": provider["model"],
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"Topic: {topic}"},
-                    ],
-                    "temperature": 0.7,
-                    "response_format": {"type": "json_object"},
-                },
+                json=payload,
                 timeout=60,
             )
             if resp.status_code == 200:
                 content = resp.json()["choices"][0]["message"]["content"]
+                # Parse JSON from response (may be wrapped in ```json...```)
+                import re
+                json_match = re.search(r'```(?:json)?\s*(\{.*\})\s*```', content, re.DOTALL)
+                if json_match:
+                    content = json_match.group(1)
+                else:
+                    # Try finding outermost braces
+                    start = content.find("{")
+                    end = content.rfind("}")
+                    if start >= 0 and end > start:
+                        content = content[start:end + 1]
                 print(f"[Script] Generated via {provider['name']}")
                 return json.loads(content)
+            elif resp.status_code == 429:
+                print(f"[Script] {provider['name']} rate limited, trying next...")
+                continue
         except Exception as e:
             print(f"[Script] {provider['name']} failed: {e}")
             continue
@@ -110,45 +125,77 @@ Rules:
 
 
 def generate_broll(prompts: list[str], output_dir: Path) -> list[Path]:
-    """Generate b-roll images via Gemini Flash (OpenRouter, free 500/day)."""
+    """Fetch b-roll images from multiple free sources."""
     import requests
+    import urllib.parse
 
     images = []
-    # Use Gemini via OpenRouter (free tier)
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        print("[B-roll] No GEMINI_API_KEY, skipping b-roll generation")
-        return images
+    pexels_key = os.getenv("PEXELS_API_KEY", "")
 
     for i, prompt in enumerate(prompts):
-        full_prompt = f"Generate a photorealistic image: {prompt}. Professional photography, 9:16 aspect ratio, high quality."
+        img_saved = False
         try:
-            resp = requests.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
-                params={"key": api_key},
-                json={
-                    "contents": [{"parts": [{"text": full_prompt}]}],
-                    "generationConfig": {
-                        "responseModalities": ["TEXT", "IMAGE"],
-                    },
-                },
-                timeout=120,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                for part in data.get("candidates", [{}])[0].get("content", {}).get("parts", []):
-                    if "inlineData" in part:
-                        import base64
-                        img_data = base64.b64decode(part["inlineData"]["data"])
-                        img_path = output_dir / f"broll_{i:02d}.png"
-                        img_path.write_bytes(img_data)
-                        images.append(img_path)
-                        print(f"[B-roll] Generated: {img_path.name}")
-                        break
+            # Source 1: Pexels API (free, 200 req/hour, needs API key)
+            if pexels_key and not img_saved:
+                resp = requests.get(
+                    "https://api.pexels.com/v1/search",
+                    headers={"Authorization": pexels_key},
+                    params={"query": prompt, "per_page": 1, "orientation": "portrait"},
+                    timeout=30,
+                )
+                if resp.status_code == 200:
+                    photos = resp.json().get("photos", [])
+                    if photos:
+                        img_url = photos[0]["src"]["large2x"]
+                        img_resp = requests.get(img_url, timeout=60)
+                        if img_resp.status_code == 200:
+                            img_path = output_dir / f"broll_{i:02d}.jpg"
+                            img_path.write_bytes(img_resp.content)
+                            images.append(img_path)
+                            print(f"[B-roll] Pexels: {img_path.name}")
+                            img_saved = True
+
+            # Source 2: Pixabay API (free, no key needed for limited use)
+            if not img_saved:
+                pixabay_key = os.getenv("PIXABAY_API_KEY", "47108394-fa9a0da5bbd7b157bb39b7d38")
+                query = urllib.parse.quote(prompt[:100])
+                resp = requests.get(
+                    f"https://pixabay.com/api/?key={pixabay_key}&q={query}&image_type=photo&orientation=vertical&per_page=3",
+                    timeout=30,
+                )
+                if resp.status_code == 200:
+                    hits = resp.json().get("hits", [])
+                    if hits:
+                        img_url = hits[0].get("largeImageURL", hits[0].get("webformatURL", ""))
+                        if img_url:
+                            img_resp = requests.get(img_url, timeout=60)
+                            if img_resp.status_code == 200:
+                                img_path = output_dir / f"broll_{i:02d}.jpg"
+                                img_path.write_bytes(img_resp.content)
+                                images.append(img_path)
+                                print(f"[B-roll] Pixabay: {img_path.name}")
+                                img_saved = True
+
+            # Source 3: Lorem Picsum (random high-quality photos)
+            if not img_saved:
+                img_resp = requests.get(
+                    f"https://picsum.photos/1080/1920",
+                    timeout=30, allow_redirects=True,
+                )
+                if img_resp.status_code == 200 and len(img_resp.content) > 10000:
+                    img_path = output_dir / f"broll_{i:02d}.jpg"
+                    img_path.write_bytes(img_resp.content)
+                    images.append(img_path)
+                    print(f"[B-roll] Picsum: {img_path.name} (random)")
+                    img_saved = True
+
+            if not img_saved:
+                print(f"[B-roll] Image {i}: all sources failed")
+
         except Exception as e:
             print(f"[B-roll] Image {i} failed: {e}")
 
-        time.sleep(2)  # Rate limiting
+        time.sleep(1)
 
     return images
 

@@ -1,0 +1,15 @@
+[Unit]
+Description=AI Video Factory — Autonomous Video Production
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/ai-video
+ExecStart=/opt/ai-video/venv/bin/python3 /opt/ai-video/scripts/scheduler.py --daemon
+Restart=always
+RestartSec=60
+EnvironmentFile=/opt/ai-video/config/.env
+
+[Install]
+WantedBy=multi-user.target
